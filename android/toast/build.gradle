@@ -1,0 +1,65 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+    sourceSets {
+        main {
+            // Here is the path to your source code
+            java {
+                srcDir 'src/main/java'
+            }
+        }
+    }
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 18
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile('com.google.android.gms:play-services-base:6.5.87')
+
+    compile('com.google.android.gms:play-services-ads:6.5.87')
+            {
+                exclude module: 'support-v4'
+            }
+    compile('com.google.code.gson:gson:2.3')
+    compile fileTree(dir: 'libs',include:['*.jar'])
+    compile 'com.android.support:appcompat-v7:25.3.1'
+
+    testCompile 'junit:junit:4.12'
+}
+
+task deleteOldJar(type: Delete) {
+    delete 'build/libs/AndroidPlugin.jar'
+}
+task exportJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('release/')
+    include('classes.jar')
+    ///Give whatever name you want to give
+    rename('classes.jar', 'AndroidPlugin.jar')
+}
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('build/outputs/')
+    include('classes.jar')
+    rename ('classes.jar', 'myLib.jar')
+    into('release/') //you can change this directory where you want to copy your .jar
+}
+task clearJar(type: Delete) {
+    delete 'build/libs/myLib.jar'
+}
+
+exportJar.dependsOn(deleteOldJar, build)
